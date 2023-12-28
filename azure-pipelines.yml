@@ -1,0 +1,44 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    backendServiceArm: 'Azure Pass - Sponsorship(1907e921-73d7-4a29-93bd-1c6bde244c59)'
+    backendAzureRmResourceGroupName: 'terraform-backend'
+    backendAzureRmStorageAccountName: 'tonytrfmstorage'
+    backendAzureRmContainerName: 'tfstatestorage'
+    backendAzureRmKey: 'terraform.tfstate'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/infra'
+
+
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/infra'
+
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/infra'
+    environmentServiceNameAzureRM: 'Azure Pass - Sponsorship(1907e921-73d7-4a29-93bd-1c6bde244c59)'
+  
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/infra'
+    commandOptions: '-auto-approve'
+    environmentServiceNameAzureRM: 'Azure Pass - Sponsorship(1907e921-73d7-4a29-93bd-1c6bde244c59)'
